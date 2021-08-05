@@ -264,8 +264,8 @@ N6:
         MOV AH, '*'
         CALL LCD_WRITE_CHAR 
         
-        ;CMP DAU, 0 ; KIEM TRA XEM CO DAU LA KHONG VX -* +* /*   
-        ;JNE NHAP_LOI
+        CMP DAU, 0 ; KIEM TRA XEM CO DAU LA KHONG VX -* +* /*   
+        JNE NHAP_LOI
         
         MOV DAU, '*'     
         
@@ -369,20 +369,27 @@ N3:
         KT_TRU:  
             ;;;  TRUONG HOP NHAP HAI DAU TRU ;;;;
             CMP DAU, '-'  ; KIEM TRA TRUONG HOP NHAP 2 DAU AM     
-            JNE N_D_S     ; NHAY TRUONG HOP KHONG PHAI HAI DAU 
+            JNE KT_NHAN     ; NHAY TRUONG HOP KHONG PHAI HAI DAU 
             MOV DAU, '+'  ; HAI DAU TRU THANH CONG
             MOV BD, 1     ; TRANH BI LAP LAI DAU 
             JMP KEYPAD 
             
+        KT_NHAN: 
+            CMP DAU, '*' 
+            JNE KT_CHIA 
             
+            JMP NHAP_LOI    
             
-            
-            
-             
+        KT_CHIA:
+            CMP DAU, '/' 
+            JNE  N_D_S          
+            JMP NHAP_LOI  
+                
         N_D_S:     
             MOV DAU, '-'       
             MOV BD, 1       
-            JMP KEYPAD
+            JMP KEYPAD   
+            
     ;**********************************
     ;                                 ;
     ;                                 ;
@@ -455,8 +462,17 @@ NBANG:
     JE  KEYPAD 
     
         MOV AH, '+'
-        CALL LCD_WRITE_CHAR 
+        CALL LCD_WRITE_CHAR
         
+        CMP DAU, '-'
+        
+        JNE TRU_CONG
+        
+        MOV DAU, '-' 
+        MOV BD, 1
+        JMP KEYPAD 
+         
+    TRU_CONG:    
         MOV DAU, '+'     
         
         MOV BD, 1  
@@ -806,8 +822,18 @@ HNUM:
     
     
     MOV DL,2
-	MOV DH,12
-	CALL LCD_SET_CUR
+	MOV DH,11
+	CALL LCD_SET_CUR 
+	
+	CMP SIGN, 0  ; KIEM TRA PHEP TOAN AM HAY KHONG 
+    
+    JE SSOL1     ; NEU KHONG AM THI BO QUA VIEC 
+	
+	MOV AH, '-'
+    
+    CALL LCD_WRITE_CHAR     
+
+SSOL1:
 	
 	MOV AX, RESULT 
 	
@@ -864,11 +890,21 @@ SOL5:
     JNE NF5     
     
     CMP SIGN, 1  ;NEU CO DAU AM 
-    JE
+    JNE NF5
     
     MOV DL,2
-	MOV DH,8
+	MOV DH,7
 	CALL LCD_SET_CUR 
+	
+	CMP SIGN, 0  ; KIEM TRA PHEP TOAN AM HAY KHONG 
+    
+    JE SSOL5     ; NEU KHONG AM THI BO QUA VIEC 
+	
+	MOV AH, '-'
+    
+    CALL LCD_WRITE_CHAR     
+
+SSOL5:
 	
 	CALL PRINT 
 	MOV CDOT, 0
@@ -895,8 +931,18 @@ SOL4:
     
     
     MOV DL,2
-	MOV DH,9
-	CALL LCD_SET_CUR 
+	MOV DH,8
+	CALL LCD_SET_CUR  
+	
+	CMP SIGN, 0  ; KIEM TRA PHEP TOAN AM HAY KHONG 
+    
+    JE SSOL4    ; NEU KHONG AM THI BO QUA VIEC 
+	
+	MOV AH, '-'
+    
+    CALL LCD_WRITE_CHAR     
+
+SSOL4:
 	
 	CALL PRINT 
 	MOV CDOT, 0
@@ -921,8 +967,18 @@ SOL3:
     
     
     MOV DL,2
-	MOV DH,10
-	CALL LCD_SET_CUR 
+	MOV DH,9
+	CALL LCD_SET_CUR
+	
+	CMP SIGN, 0  ; KIEM TRA PHEP TOAN AM HAY KHONG 
+    
+    JE SSOL3     ; NEU KHONG AM THI BO QUA VIEC 
+	
+	MOV AH, '-'
+    
+    CALL LCD_WRITE_CHAR     
+
+SSOL3: 
 	
 	CALL PRINT 
 	MOV CDOT, 0
@@ -949,8 +1005,19 @@ SOL2:
     
     
     MOV DL,2
-	MOV DH,11
+	MOV DH,10
 	CALL LCD_SET_CUR 
+	
+	                                             
+    CMP SIGN, 0  ; KIEM TRA PHEP TOAN AM HAY KHONG 
+    
+    JE SSOL2     ; NEU KHONG AM THI BO QUA VIEC 
+	
+	MOV AH, '-'
+    
+    CALL LCD_WRITE_CHAR     
+
+SSOL2:
 	
 	CALL PRINT 
 	MOV CDOT, 0
@@ -1118,17 +1185,7 @@ ENDP MAIN
 ;                                    ;
 ;                                    ;
 ;*************************************
-PROC PRINT 
-                                                 
-    CMP SIGN, 0  ; KIEM TRA PHEP TOAN AM HAY KHONG 
-    
-    JE KTNUM     ; NEU KHONG AM THI BO QUA VIEC 
-	
-	MOV AH, '-'
-    
-    CALL LCD_WRITE_CHAR     
-
-KTNUM: 
+PROC PRINT  
     
     CMP N_COUNT, 5
     
@@ -1279,7 +1336,7 @@ CHECKF:
         
         JNE SAUCHAM
       
-NFOAT: 
+NFOAT:                    
         
     RET  
     
