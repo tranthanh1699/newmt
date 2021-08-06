@@ -27,7 +27,9 @@
 
 	RESULT DW 0 
 	
-	ANS DW 0  ; LUU KET QUA CU CUA PHEP TINH 
+	ANS DW 0  ; LUU KET QUA CU CUA PHEP TINH
+	
+	CANS DW 0 ; LUU GIA TRI SAU DAU CHAM  
     
     
     BD DB 0   ; BUTTON STATE
@@ -573,7 +575,7 @@ LNUM2:                                     ;
                                            ;
     EXITN2:                                ;
         JMP KEYPAD                         ;
-                                           ;                                          ;
+                                           ;                                      
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 
                  
@@ -916,7 +918,11 @@ NF5:
 	MOV DH,11
 	CALL LCD_SET_CUR  
 	
-	
+	CMP SIGN, 0
+	JE SNF5
+	MOV AH, '-'
+	CALL LCD_WRITE_CHAR		
+SNF5:
 	
 	CALL PRINT 
 		
@@ -953,6 +959,11 @@ NF4:
 	MOV DH,12
 	CALL LCD_SET_CUR 
 	
+	CMP SIGN, 0
+	JE SNF4
+	MOV AH, '-'
+	CALL LCD_WRITE_CHAR		
+SNF4:
 	
 	CALL PRINT 
 	
@@ -989,8 +1000,13 @@ NF3:
     MOV DL,2
 	MOV DH,13
 	CALL LCD_SET_CUR 
+	MOV N_COUNT, 3 
 	
-	MOV N_COUNT, 3
+	CMP SIGN, 0
+	JE SNF3
+	MOV AH, '-'
+	CALL LCD_WRITE_CHAR		
+SNF3:
 	CALL PRINT 
 	
 	JMP HAM_CHO
@@ -1030,7 +1046,14 @@ NF2:
 	CALL LCD_SET_CUR 
 	
 	
-	MOV N_COUNT, 2
+	MOV N_COUNT, 2 
+	
+	CMP SIGN, 0
+	JE SNF2
+	MOV AH, '-'
+	CALL LCD_WRITE_CHAR		
+SNF2:
+
 	CALL PRINT 
 	
 	JMP HAM_CHO
@@ -1318,7 +1341,8 @@ CHECKF:
         
         DIV BX
         
-        MOV CRESULT, DX
+        MOV CRESULT, DX 
+         
         
         ADD AX, 0030H 
         
